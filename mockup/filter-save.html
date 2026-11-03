@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>필터 저장 모달 — 목업</title>
+<style>
+  body { margin: 0; font-family: Pretendard, system-ui, sans-serif; background: #f4f5f7; color: #1b1d1f; }
+  .page { padding: 24px; }
+  .bar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .chip { border: 1px solid #d1d4d9; border-radius: 999px; padding: 4px 12px; font-size: 13px; background: #fff; }
+  .chip.on { background: #e8f1ff; border-color: #9ec5ff; color: #1b64da; font-weight: 600; }
+  .btn { margin-left: auto; border: 0; border-radius: 6px; padding: 8px 14px; background: #3182f6; color: #fff; font-size: 13px; }
+  .modal { width: 320px; margin: 40px auto; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .modal h2 { margin: 0 0 12px; font-size: 16px; }
+  .modal input { width: 100%; box-sizing: border-box; border: 1px solid #d1d4d9; border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+  .row { display: flex; justify-content: flex-end; gap: 6px; margin-top: 16px; }
+  .ghost { background: #fff; color: #4e5968; border: 1px solid #d1d4d9; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bar">
+    <span class="chip on">내 카드</span><span class="chip">마감 임박</span><span class="chip">QA 진행 중</span>
+    <button class="btn" onclick="document.getElementById('m').style.display='block'">필터 저장</button>
+  </div>
+  <div id="m" class="modal">
+    <h2>필터 저장</h2>
+    <input value="내 마감 임박 카드" aria-label="필터 이름" />
+    <div class="row"><button class="btn ghost">취소</button><button class="btn">저장</button></div>
+  </div>
+</div>
+</body>
+</html>
