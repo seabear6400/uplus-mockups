@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280" />
+<title>설문 미응답자 알림 — 목업</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; }
+  body { font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif; font-size: 14px; line-height: 22px; color: #141922; background: #fff; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; cursor: pointer; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .app { display: grid; grid-template-rows: 56px 1fr; height: 800px; }
+  .gnb { display: flex; align-items: center; gap: 16px; padding: 0 20px; border-bottom: 1px solid #eceef2; background: #fff; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; width: 236px; }
+  .logo b { width: 26px; height: 26px; border-radius: 6px; background: #1b64da; color: #fff; display: grid; place-items: center; font-size: 13px; }
+  .gsearch { flex: 1; max-width: 420px; height: 34px; border-radius: 8px; background: #f7f8fa; color: #7f8798; display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 13px; }
+  .gright { margin-left: auto; display: flex; align-items: center; gap: 14px; color: #565f6e; }
+  .bell { position: relative; } .bell::after { content: ""; position: absolute; top: 0; right: 0; width: 6px; height: 6px; border-radius: 50%; background: #e5484d; }
+  .me { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #2e3644; }
+  .av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; flex: none; }
+  .t-blue { background: #e4effd; color: #1957b8; } .t-green { background: #dbf3e6; color: #0e6e4a; } .t-orange { background: #fdecdf; color: #8a5606; }
+  .t-purple { background: #ede7fb; color: #5b3fa8; } .t-pink { background: #fbe4ee; color: #a8336a; } .t-gray { background: #eceef2; color: #414a57; }
+  .body { display: grid; grid-template-columns: 56px 200px 1fr; min-height: 0; }
+  .rail { background: #f7f8fa; border-right: 1px solid #eceef2; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 12px; color: #7f8798; }
+  .rail span { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; }
+  .rail span.on { background: #e4effd; color: #1b64da; }
+  .snb { background: #f7f8fa; border-right: 1px solid #eceef2; padding: 16px 10px; font-size: 13px; color: #414a57; }
+  .snb h4 { margin: 0 8px 10px; font-size: 15px; color: #141922; }
+  .snb .g { margin: 16px 8px 4px; font-size: 12px; color: #7f8798; }
+  .snb a { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 6px; color: inherit; text-decoration: none; }
+  .snb a.on { background: #eceef2; color: #141922; font-weight: 600; }
+  .snb a .n { margin-left: auto; font-size: 12px; color: #7f8798; }
+  .main { min-width: 0; padding: 24px 32px; overflow: hidden; }
+  .crumb { font-size: 13px; color: #7f8798; margin-bottom: 6px; }
+  h1 { margin: 0; font-size: 22px; line-height: 30px; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid transparent; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.primary { background: #1b64da; color: #fff; }
+  .btn.secondary { background: #fff; color: #2e3644; border-color: #dcdfe6; }
+  .btn.ghost { background: transparent; color: #414a57; }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 13px; }
+  .card { border: 1px solid #eceef2; border-radius: 12px; background: #fff; }
+  .muted { color: #7f8798; } .sub { color: #565f6e; }
+  .chip { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid #dcdfe6; background: #fff; color: #414a57; font-size: 13px; display: inline-flex; align-items: center; }
+  .chip.on { background: #e4effd; border-color: #8fbdf8; color: #1957b8; font-weight: 600; }
+  .sw { width: 36px; height: 20px; border-radius: 999px; background: #b7bec9; position: relative; border: 0; padding: 0; flex: none; transition: background .15s; }
+  .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .sw.on { background: #1b64da; } .sw.on::after { left: 18px; }
+  .toast { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); background: #1f2530; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px; display: none; }
+
+  .top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+  .filters { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; }
+  .filters .s { margin-left: auto; height: 32px; width: 220px; border: 1px solid #dcdfe6; border-radius: 8px; display: flex; align-items: center; gap: 6px; padding: 0 10px; color: #7f8798; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 500; color: #7f8798; font-size: 13px; padding: 10px 16px; border-bottom: 1px solid #eceef2; }
+  td { padding: 0 16px; height: 52px; border-bottom: 1px solid #f2f3f6; }
+  tr.sel td { background: #f4f8fe; }
+  .rate { display: flex; align-items: center; gap: 10px; }
+  .rate .b { width: 120px; height: 6px; border-radius: 99px; background: #eceef2; overflow: hidden; }
+  .rate .b i { display: block; height: 100%; background: #1b64da; }
+  .st { font-size: 13px; font-weight: 600; color: #1957b8; } .st.end { color: #7f8798; }
+  .det { margin-top: 16px; padding: 20px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .det h3 { margin: 0 0 4px; font-size: 16px; }
+  .ppl { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .ppl div { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: #f7f8fa; border-radius: 8px; }
+  .opt b { display: block; font-size: 14px; } .opt span.muted { font-size: 13px; }
+  .opt .sw { margin-left: auto; margin-top: 2px; }
+  .next { font-size: 13px; color: #1957b8; margin: 10px 2px 0; }
+  .nowrow { display: flex; align-items: center; gap: 8px; margin-top: 18px; }
+  .nowrow .muted { font-size: 12px; }
+  .nowrow .btn { margin-left: auto; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="gnb">
+    <div class="logo"><b>U</b>U-Plus 그룹웨어</div>
+    <div class="gsearch"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>메뉴·글·사람 검색</div>
+    <div class="gright"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><span class="bell"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/></svg></span>
+      <div class="me"><span class="av t-blue">성우</span>김성우 · 기획자</div></div>
+  </header>
+  <div class="body">
+    <nav class="rail"><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M4 5h16v11H8l-4 4z"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span><span class="on"><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class=""><svg class="i" viewBox="0 0 24 24" style="width:20px;height:20px"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span></nav>
+    <aside class="snb"><h4>설문조사</h4><a>설문 참여</a><a class="on">설문 관리</a><a>설문 결과</a></aside>
+    <main class="main"><div class="top"><div><div class="crumb">설문조사</div><h1>설문 관리</h1></div>
+      <button class="btn primary"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>새 설문</button></div>
+    <div class="filters"><span class="chip on">전체</span><span class="chip">진행 중</span><span class="chip">마감</span>
+      <span class="s"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>설문 제목 검색</span></div>
+    <div class="card"><table>
+      <tr><th>설문</th><th>기간</th><th>응답</th><th>미응답자 알림</th><th>상태</th><th></th></tr>
+      <tr class="sel"><td><b style="font-weight:600">연말 워크숍 장소 투표</b></td><td class="sub">11/20 ~ 12/2</td>
+        <td><div class="rate"><span class="b"><i style="width:78%"></i></span><span>14 / 18명</span></div></td>
+        <td class="">마감 하루 전</td>
+        <td><span class="st ">진행 중</span></td><td class="muted"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></td></tr><tr class=""><td><b style="font-weight:600">4분기 그룹웨어 만족도 조사</b></td><td class="sub">11/16 ~ 11/30</td>
+        <td><div class="rate"><span class="b"><i style="width:74%"></i></span><span>31 / 42명</span></div></td>
+        <td class="">마감 하루 전</td>
+        <td><span class="st ">진행 중</span></td><td class="muted"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></td></tr><tr class=""><td><b style="font-weight:600">내년 상반기 기능 수요 조사</b></td><td class="sub">11/25 ~ 12/11</td>
+        <td><div class="rate"><span class="b"><i style="width:14%"></i></span><span>6 / 42명</span></div></td>
+        <td class="muted">끔</td>
+        <td><span class="st ">진행 중</span></td><td class="muted"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></td></tr><tr class=""><td><b style="font-weight:600">사내 동호회 수요 조사</b></td><td class="sub">10/26 ~ 11/6</td>
+        <td><div class="rate"><span class="b"><i style="width:90%"></i></span><span>38 / 42명</span></div></td>
+        <td class="muted">—</td>
+        <td><span class="st end">마감</span></td><td class="muted"><svg class="i" viewBox="0 0 24 24" style="width:18px;height:18px"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></td></tr>
+    </table></div>
+    <div class="card det">
+      <div><h3>연말 워크숍 장소 투표</h3><span class="muted" style="font-size:13px">마감 12월 2일(수) 18:00 · 대상 개발 2팀 외 3개 부서</span>
+        <div class="ppl"><span class="sub" style="font-size:13px">아직 응답하지 않은 사람 4명</span>
+        <div><span class="av t-orange">지훈</span>김지훈<span class="muted">· 사업부</span></div><div><span class="av t-green">서연</span>박서연<span class="muted">· 개발 1팀</span></div><div><span class="av t-purple">태민</span>조태민<span class="muted">· 개발 2팀</span></div><div><span class="av t-gray">현</span>남궁현<span class="muted">· 개발 1팀</span></div></div></div>
+      <div>
+        <div class="opt"><div><b>마감 하루 전 미응답자에게 알림 보내기</b><span class="muted">마감 24시간 전에 한 번만 알려요. 익명 설문도 응답했는지만 봐요.</span></div>
+          <button class="sw on" id="sw" aria-label="미응답자 알림"></button></div>
+        <div class="next" id="next">12월 1일(화) 18:00에 4명에게 알림이 가요</div>
+        <div class="nowrow"><span class="muted">기다리기 어렵다면 지금 바로 알릴 수 있어요 · 하루에 한 번</span>
+          <button class="btn secondary" id="now"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/></svg>지금 알리기</button></div>
+      </div>
+    </div><div class="toast" id="toast">미응답자 4명에게 알림을 보냈어요</div></main>
+  </div>
+</div>
+<script>
+  const sw = document.getElementById('sw'), next = document.getElementById('next');
+  sw.onclick = () => { sw.classList.toggle('on'); next.style.visibility = sw.classList.contains('on') ? 'visible' : 'hidden'; };
+  document.getElementById('now').onclick = e => {
+    const t = document.getElementById('toast'); t.style.display = 'block';
+    e.currentTarget.disabled = true; e.currentTarget.style.opacity = .5;
+    setTimeout(() => t.style.display = 'none', 2000);
+  };</script>
+</body>
+</html>
